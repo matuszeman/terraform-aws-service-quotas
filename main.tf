@@ -3,8 +3,8 @@ locals {
 
   # manage quotas that have a `value` defined
   quotas_to_manage         = { for i, quota in var.service_quotas : i => quota if local.enabled && lookup(quota, "value", null) != null }
-  quotas_to_manage_by_code = { for i, quota in local.quotas_to_manage : i => quota if local.enabled && lookup(quota, "quota_code", null) != null }
-  quotas_to_manage_by_name = { for i, quota in local.quotas_to_manage : i => quota if local.enabled && lookup(quota, "quota_name", null) != null }
+  quotas_to_manage_by_code = { for i, quota in local.quotas_to_manage : "${quota.service_code}:${quota.quota_code}" => quota if local.enabled && lookup(quota, "quota_code", null) != null }
+  quotas_to_manage_by_name = { for i, quota in local.quotas_to_manage : "${quota.service_code}:${quota.quota_name}" => quota if local.enabled && lookup(quota, "quota_name", null) != null }
 
   # lookup quotas that have a `quota_code` or `quota_name` defined and `value` is null
   quotas_to_lookup         = { for i, quota in var.service_quotas : i => quota if local.enabled && lookup(quota, "value", null) == null }
@@ -28,7 +28,7 @@ resource "aws_servicequotas_service_quota" "managed_by_code" {
 
   quota_code   = each.value.quota_code
   service_code = each.value.service_code
-  value        = var.service_quotas[each.key].value
+  value        = each.value.value
 }
 
 # find quota codes
@@ -44,7 +44,7 @@ resource "aws_servicequotas_service_quota" "managed_by_name" {
 
   quota_code   = each.value.quota_code
   service_code = each.value.service_code
-  value        = var.service_quotas[each.key].value
+  value        = each.value.value
 }
 
 # for_each service_quota where `value` is `null`, lookup service quotas by either `quota_code` or `quota_name`
