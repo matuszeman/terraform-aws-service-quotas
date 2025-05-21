@@ -28,7 +28,7 @@ resource "aws_servicequotas_service_quota" "managed_by_code" {
 
   quota_code   = each.value.quota_code
   service_code = each.value.service_code
-  value        = var.service_quotas[each.key].value
+  value        = each.value.value
 }
 
 # find quota codes
@@ -44,7 +44,7 @@ resource "aws_servicequotas_service_quota" "managed_by_name" {
 
   quota_code   = each.value.quota_code
   service_code = each.value.service_code
-  value        = var.service_quotas[each.key].value
+  value        = each.value.value
 }
 
 # for_each service_quota where `value` is `null`, lookup service quotas by either `quota_code` or `quota_name`
